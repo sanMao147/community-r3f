@@ -27,7 +27,6 @@ export const CommunityModel = ({ controlsRef }: CommunityModelProps) => {
     setCurrentBuilding,
     setBuildingLayers,
     currentBuilding,
-    setActiveMonitor,
     setCurrentLayer,
   } = useStore()
   const { flyTo } = useCameraAnimation(controlsRef)
@@ -72,8 +71,6 @@ export const CommunityModel = ({ controlsRef }: CommunityModelProps) => {
   useEffect(() => {
     clearSelectedObjects()
     setTooltip({ show: false })
-    setActiveMonitor(null)
-    setMonitorLabels([])
 
     if (mode === 'water') {
       flyTo([5.14, 6.98, 1.84], [11.71, -0.78, 12.35])
@@ -137,9 +134,11 @@ export const CommunityModel = ({ controlsRef }: CommunityModelProps) => {
       })
       setMonitorLabels(labels)
     } else if (mode === 'floor') {
+      setMonitorLabels([])
       flyTo([18.31, 41.48, 32.01], [17.38, -3.54, 1.71])
       restoreMaterials()
     } else {
+      setMonitorLabels([])
       restoreMaterials()
       flyTo([68, 27, 47], [-9.94, 1.36, 3.18])
       setCurrentBuilding(null)
@@ -167,7 +166,6 @@ export const CommunityModel = ({ controlsRef }: CommunityModelProps) => {
     setCurrentBuilding,
     waterMaterial,
     electricMaterial,
-    setActiveMonitor,
   ])
 
   // Handle Building Selection
@@ -287,25 +285,12 @@ export const CommunityModel = ({ controlsRef }: CommunityModelProps) => {
       y: e.clientY,
       position: [e.point.x, e.point.y, e.point.z],
     })
-
-    // Open Monitor Panel
-    setActiveMonitor({
-      show: true,
-      floor: floorName,
-      layer: layerName,
-      room: roomName,
-      value: value,
-      name: obj.name,
-      type: type,
-      id: obj.uuid,
-    })
   }
 
   const handlePointerMissed = () => {
     if (mode !== 'floor') {
       setTooltip({ show: false })
       clearSelectedObjects()
-      setActiveMonitor(null)
     }
   }
 

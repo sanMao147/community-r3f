@@ -54,6 +54,14 @@ export const FloorManager = ({
     }
 
     const targetLayerNum = getFloorNum(currentLayer)
+    
+    // Find max floor number for correct Roof positioning
+    let maxFloor = 0
+    buildingObj.children.forEach((child) => {
+      const f = getFloorNum(child.name)
+      if (!isNaN(f) && f > maxFloor) maxFloor = f
+    })
+
     const newLabels: {
       name: string
       position: [number, number, number]
@@ -78,18 +86,29 @@ export const FloorManager = ({
           mesh.material = originalMaterials.get(mesh.uuid)!
         }
       } else {
-        let moveUp = false
-        // Logic: Move floors above the current one up to separate them
-        if (mesh.name.includes('楼顶')) {
-          if (!isNaN(targetLayerNum)) moveUp = true
-        } else if (!isNaN(meshFloorNum) && !isNaN(targetLayerNum)) {
-          if (meshFloorNum > targetLayerNum) moveUp = true
-          if (meshFloorNum === targetLayerNum) shouldShowLabel = true
+        let floorDiff = 0
+        // Logic: Calculate difference between this floor and target floor
+        if (!isNaN(targetLayerNum)) {
+           if (mesh.name.includes('楼顶')) {
+             // Treat Roof as one level above max floor
+             floorDiff = (maxFloor + 1) - targetLayerNum
+           } else if (!isNaN(meshFloorNum)) {
+             floorDiff = meshFloorNum - targetLayerNum
+           }
         }
 
-        if (moveUp) targetY = initialPos.y + 25
-        // Increased separation distance for better visibility
-        else targetY = initialPos.y
+        // Move floors above the current one up, staggered
+        if (floorDiff >= 1) {
+             // Staggered offset: each floor above moves further up
+             // Using 30 units per floor for clear separation in R3F scale
+             targetY = initialPos.y + floorDiff * 30 
+        } else {
+             targetY = initialPos.y
+        }
+        
+        if (!isNaN(meshFloorNum) && meshFloorNum === targetLayerNum) {
+            shouldShowLabel = true
+        }
 
         // --- Material Logic ---
         if (meshFloorNum === targetLayerNum) {

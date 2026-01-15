@@ -1,7 +1,6 @@
 import { clsx } from 'clsx'
 import { AppMode, useStore } from '../../store/useStore'
 import { Dashboard } from './Dashboard'
-import { MonitorPanel } from './MonitorPanel'
 
 export const Overlay = () => {
   const {
@@ -11,7 +10,6 @@ export const Overlay = () => {
     setCurrentLayer,
     currentLayer,
     buildingLayers,
-    activeMonitor
   } = useStore()
 
   const buttons: { id: AppMode; label: string }[] = [
@@ -23,12 +21,10 @@ export const Overlay = () => {
 
   return (
     <div className='absolute inset-0 pointer-events-none'>
-      {/* Dashboard for Default Mode */}
-      {mode === 'default' && <Dashboard />}
-
-      {/* Monitor Panel for Water/Electric Mode */}
-      {activeMonitor && <MonitorPanel />}
-
+      {/* Dashboard for Default, Water, and Electric Mode */}
+      {(mode === 'default' || mode === 'water' || mode === 'electric') && (
+        <Dashboard mode={mode} />
+      )}
       {/* Layer Control Panel */}
       {mode === 'floor' && currentBuilding && (
         <div className='absolute top-[20%] right-[10%] w-32 bg-black/60 backdrop-blur-md border border-blue-500/30 rounded-lg p-4 pointer-events-auto flex flex-col gap-2 max-h-[60vh] overflow-y-auto'>

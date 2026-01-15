@@ -37,10 +37,6 @@ interface StoreState {
   setCurrentLayer: (layer: string) => void
   buildingLayers: string[] // Available layers for current building
   setBuildingLayers: (layers: string[]) => void
-
-  // Monitor Panel
-  activeMonitor: TooltipData | null
-  setActiveMonitor: (data: TooltipData | null) => void
 }
 
 export const useStore = create<StoreState>((set) => ({
@@ -50,7 +46,6 @@ export const useStore = create<StoreState>((set) => ({
       mode,
       currentBuilding: null,
       currentLayer: '全楼',
-      activeMonitor: null,
     }), // Reset floor state on mode change
 
   tooltip: { show: false },
@@ -68,7 +63,4 @@ export const useStore = create<StoreState>((set) => ({
   setCurrentLayer: (layer) => set({ currentLayer: layer }),
   buildingLayers: [],
   setBuildingLayers: (layers) => set({ buildingLayers: layers }),
-
-  activeMonitor: null,
-  setActiveMonitor: (data) => set({ activeMonitor: data }),
 }))
