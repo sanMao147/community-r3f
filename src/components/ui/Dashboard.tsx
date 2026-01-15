@@ -3,6 +3,10 @@ import ReactECharts from 'echarts-for-react'
 import React, { useMemo } from 'react'
 import { AppMode } from '../../store/useStore'
 
+/**
+ * 卡片容器组件
+ * 用于包装数据面板中的各个图表和信息卡片
+ */
 const Card = ({
   title,
   children,
@@ -18,6 +22,7 @@ const Card = ({
       className
     )}
   >
+    {/* 卡片标题 */}
     <h3 className='text-blue-300 font-bold mb-3 border-b border-blue-500/30 pb-2 text-sm uppercase tracking-wider flex items-center gap-2'>
       <span className='w-1 h-4 bg-blue-500 rounded-full'></span>
       {title}
@@ -26,8 +31,17 @@ const Card = ({
   </div>
 )
 
+/**
+ * 数据面板组件
+ * 根据不同模式显示相应的数据图表和统计信息
+ * 
+ * @param mode - 当前应用模式（default/water/electric）
+ */
 export const Dashboard = ({ mode = 'default' }: { mode?: AppMode }) => {
-  // Chart 1: Energy Consumption (Line Chart)
+  /**
+   * 图表1：能耗趋势图（折线图）
+   * 根据模式显示电力和/或水力的消耗趋势
+   */
   const energyOption = useMemo(() => {
     const isWater = mode === 'water'
     const isElectric = mode === 'electric'
@@ -35,14 +49,16 @@ export const Dashboard = ({ mode = 'default' }: { mode?: AppMode }) => {
     const series = []
     const legendData = []
 
+    // 默认模式或电力模式：显示电力数据
     if (mode === 'default' || isElectric) {
       series.push({
         name: '电力 (kW)',
         type: 'line',
-        smooth: true,
-        data: [120, 132, 101, 134, 90, 230, 210],
-        itemStyle: { color: '#eab308' }, // yellow-500
+        smooth: true, // 平滑曲线
+        data: [120, 132, 101, 134, 90, 230, 210], // 模拟一周数据
+        itemStyle: { color: '#eab308' }, // 黄色
         areaStyle: {
+          // 渐变填充
           color: {
             type: 'linear',
             x: 0,
@@ -59,13 +75,14 @@ export const Dashboard = ({ mode = 'default' }: { mode?: AppMode }) => {
       legendData.push('电力 (kW)')
     }
 
+    // 默认模式或水力模式：显示水力数据
     if (mode === 'default' || isWater) {
       series.push({
         name: '水流 (t/h)',
         type: 'line',
         smooth: true,
-        data: [22, 18, 19, 23, 29, 33, 31],
-        itemStyle: { color: '#3b82f6' }, // blue-500
+        data: [22, 18, 19, 23, 29, 33, 31], // 模拟一周数据
+        itemStyle: { color: '#3b82f6' }, // 蓝色
         areaStyle: {
           color: {
             type: 'linear',
@@ -117,22 +134,28 @@ export const Dashboard = ({ mode = 'default' }: { mode?: AppMode }) => {
     }
   }, [mode])
 
-  // Chart 2: Alert Statistics (Pie Chart)
+  /**
+   * 图表2：告警统计图（饼图）
+   * 显示不同类型告警的分布情况
+   */
   const alertOption = useMemo(() => {
     let data = [
-      { value: 12, name: '设备故障', itemStyle: { color: '#ef4444' } }, // red
-      { value: 5, name: '水管泄漏', itemStyle: { color: '#3b82f6' } }, // blue
-      { value: 8, name: '电力过载', itemStyle: { color: '#eab308' } }, // yellow
-      { value: 20, name: '正常运行', itemStyle: { color: '#22c55e' } }, // green
+      { value: 12, name: '设备故障', itemStyle: { color: '#ef4444' } }, // 红色
+      { value: 5, name: '水管泄漏', itemStyle: { color: '#3b82f6' } }, // 蓝色
+      { value: 8, name: '电力过载', itemStyle: { color: '#eab308' } }, // 黄色
+      { value: 20, name: '正常运行', itemStyle: { color: '#22c55e' } }, // 绿色
     ]
 
+    // 水力模式：只显示水力相关告警
     if (mode === 'water') {
       data = [
         { value: 5, name: '水管泄漏', itemStyle: { color: '#3b82f6' } },
         { value: 2, name: '水压异常', itemStyle: { color: '#ef4444' } },
         { value: 15, name: '正常运行', itemStyle: { color: '#22c55e' } },
       ]
-    } else if (mode === 'electric') {
+    } 
+    // 电力模式：只显示电力相关告警
+    else if (mode === 'electric') {
       data = [
         { value: 8, name: '电力过载', itemStyle: { color: '#eab308' } },
         { value: 4, name: '电压不稳', itemStyle: { color: '#ef4444' } },
@@ -152,7 +175,7 @@ export const Dashboard = ({ mode = 'default' }: { mode?: AppMode }) => {
         {
           name: '告警分布',
           type: 'pie',
-          radius: ['40%', '70%'],
+          radius: ['40%', '70%'], // 环形图
           center: ['40%', '50%'],
           avoidLabelOverlap: false,
           itemStyle: {
@@ -176,9 +199,12 @@ export const Dashboard = ({ mode = 'default' }: { mode?: AppMode }) => {
     }
   }, [mode])
 
-  // Chart 3: Traffic Statistics (Bar Chart) - Only for default
-  // Chart 3 replacement for Water/Electric
+  /**
+   * 图表3：人车流量/区域用量图（柱状图）
+   * 默认模式显示人车流量，水力/电力模式显示区域用量
+   */
   const thirdOption = useMemo(() => {
+    // 默认模式：显示人车流量
     if (mode === 'default') {
       return {
         backgroundColor: 'transparent',
@@ -222,7 +248,7 @@ export const Dashboard = ({ mode = 'default' }: { mode?: AppMode }) => {
             type: 'bar',
             emphasis: { focus: 'series' },
             data: [320, 332, 301, 334, 390, 330, 320],
-            itemStyle: { color: '#8b5cf6' }, // violet
+            itemStyle: { color: '#8b5cf6' }, // 紫色
           },
           {
             name: '车流量',
@@ -230,12 +256,12 @@ export const Dashboard = ({ mode = 'default' }: { mode?: AppMode }) => {
             stack: 'Ad',
             emphasis: { focus: 'series' },
             data: [120, 132, 101, 134, 90, 230, 210],
-            itemStyle: { color: '#06b6d4' }, // cyan
+            itemStyle: { color: '#06b6d4' }, // 青色
           },
         ],
       }
     } else {
-      // Mock Bar chart for Water/Electric usage by area
+      // 水力/电力模式：显示区域用量分布
       const isWater = mode === 'water'
       return {
         backgroundColor: 'transparent',
@@ -279,8 +305,9 @@ export const Dashboard = ({ mode = 'default' }: { mode?: AppMode }) => {
 
   return (
     <>
-      {/* Left Panel */}
+      {/* 左侧面板 */}
       <div className='absolute top-[15%] left-4 w-80 flex flex-col gap-4'>
+        {/* 能耗趋势图 */}
         <Card
           title={
             mode === 'default'
@@ -297,6 +324,7 @@ export const Dashboard = ({ mode = 'default' }: { mode?: AppMode }) => {
           />
         </Card>
 
+        {/* 统计卡片：今日访客和在线设备 */}
         <div className='grid grid-cols-2 gap-2'>
           <Card
             title='今日访客'
@@ -315,8 +343,9 @@ export const Dashboard = ({ mode = 'default' }: { mode?: AppMode }) => {
         </div>
       </div>
 
-      {/* Right Panel */}
+      {/* 右侧面板 */}
       <div className='absolute top-[15%] right-4 w-80 flex flex-col gap-4'>
+        {/* 告警统计饼图 */}
         <Card
           title='实时告警统计'
           className='h-56'
@@ -326,6 +355,8 @@ export const Dashboard = ({ mode = 'default' }: { mode?: AppMode }) => {
             style={{ height: '100%', width: '100%' }}
           />
         </Card>
+        
+        {/* 人车流量/区域用量柱状图 */}
         <Card
           title={mode === 'default' ? '人车流量监控' : '区域用量分布'}
           className='h-56'

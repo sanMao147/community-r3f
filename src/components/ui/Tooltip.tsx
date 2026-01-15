@@ -2,17 +2,26 @@ import { Html } from '@react-three/drei'
 import { clsx } from 'clsx'
 import { useStore } from '../../store/useStore'
 
+/**
+ * 3D提示框组件
+ * 在3D空间中显示监测点的详细信息
+ * 根据监测类型（水/电）显示不同的样式和图标
+ */
 export const Tooltip = () => {
   const { tooltip } = useStore()
 
+  // 如果提示框未显示或没有位置信息，不渲染
   if (!tooltip.show || !tooltip.position) return null
 
+  // 判断是否为电力监测
   const isElectric = tooltip.type === '电'
+  
+  // 根据监测类型设置不同的主题颜色
   const themeColor = isElectric ? 'border-yellow-500' : 'border-blue-500'
   const textColor = isElectric ? 'text-yellow-300' : 'text-blue-300'
   const shadowColor = isElectric
-    ? 'shadow-[0_0_10px_rgba(234,179,8,0.5)]'
-    : 'shadow-[0_0_10px_rgba(0,190,255,0.5)]'
+    ? 'shadow-[0_0_10px_rgba(234,179,8,0.5)]' // 黄色发光
+    : 'shadow-[0_0_10px_rgba(0,190,255,0.5)]' // 蓝色发光
   const titleBorder = isElectric ? 'border-yellow-500/50' : 'border-blue-500/50'
   const arrowColor = isElectric
     ? 'border-t-yellow-500/80'
@@ -20,16 +29,17 @@ export const Tooltip = () => {
 
   return (
     <Html
-      position={tooltip.position}
-      style={{ pointerEvents: 'none', zIndex: 10000000 }}
+      position={tooltip.position} // 3D空间位置
+      style={{ pointerEvents: 'none', zIndex: 10000000 }} // 禁用鼠标事件，避免遮挡
     >
       <div
         className='pb-4'
         style={{
-          transform: 'translate(-50%, -100%)',
+          transform: 'translate(-50%, -100%)', // 居中并置于点位上方
           pointerEvents: 'none',
         }}
       >
+        {/* 提示框主体 */}
         <div
           className={clsx(
             'bg-black/80 border text-white p-4 rounded-lg backdrop-blur-sm min-w-[200px]',
@@ -37,6 +47,7 @@ export const Tooltip = () => {
             shadowColor
           )}
         >
+          {/* 标题栏：显示监测点名称和图标 */}
           <div
             className={clsx(
               'text-lg font-bold mb-2 border-b pb-1 flex items-center gap-2',
@@ -44,7 +55,9 @@ export const Tooltip = () => {
               titleBorder
             )}
           >
+            {/* 根据类型显示不同图标 */}
             {isElectric ? (
+              // 闪电图标（电力）
               <svg
                 xmlns='http://www.w3.org/2000/svg'
                 fill='none'
@@ -60,6 +73,7 @@ export const Tooltip = () => {
                 />
               </svg>
             ) : (
+              // 水滴图标（水力）
               <svg
                 xmlns='http://www.w3.org/2000/svg'
                 fill='none'
@@ -77,25 +91,31 @@ export const Tooltip = () => {
             )}
             {tooltip.name || (isElectric ? '电力监测点' : '水力监测点')}
           </div>
+          
+          {/* 详细信息列表 */}
           <div className='space-y-1 text-sm'>
+            {/* 楼栋信息 */}
             {tooltip.floor && (
               <div className='flex justify-between'>
                 <span className='text-gray-400'>楼栋:</span>
                 <span>{tooltip.floor}</span>
               </div>
             )}
+            {/* 楼层信息 */}
             {tooltip.layer && (
               <div className='flex justify-between'>
                 <span className='text-gray-400'>楼层:</span>
                 <span>{tooltip.layer}</span>
               </div>
             )}
+            {/* 房间信息 */}
             {tooltip.room && (
               <div className='flex justify-between'>
                 <span className='text-gray-400'>房间:</span>
                 <span>{tooltip.room}</span>
               </div>
             )}
+            {/* 监测数值：根据阈值显示不同颜色 */}
             {tooltip.value !== undefined && (
               <div className='flex justify-between'>
                 <span className='text-gray-400'>
@@ -104,6 +124,7 @@ export const Tooltip = () => {
                 <span
                   className={clsx(
                     'font-bold',
+                    // 超过阈值显示红色警告，否则显示绿色正常
                     tooltip.value > (isElectric ? 400 : 15)
                       ? 'text-red-500'
                       : 'text-green-500'
@@ -115,7 +136,8 @@ export const Tooltip = () => {
             )}
           </div>
         </div>
-        {/* Arrow */}
+        
+        {/* 指向箭头 */}
         <div
           className={clsx(
             'absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[8px]',
